@@ -876,7 +876,11 @@ end
 spawn(function()
 	repeat
 		task.wait()
+		if _G.Play == false then
+			break
+		end 
 	until _G.webhookurl ~= nil and CheckWebhook(_G.webhookurl)
+	if _G.Play == false then return end
 	local avatarurl = HTTP:JSONDecode(game:HttpGet("https://thumbnails.roblox.com/v1/users/avatar-bust?userIds="..game.Players.LocalPlayer.UserId.."&size=420x420&format=Png&isCircular=false"))
 	local avatariconurl = avatarurl.data[1].imageUrl
 	local data = {
@@ -1077,18 +1081,21 @@ local connnnect = chatframe.ChildAdded:Connect(function(child)
 	if child:IsA("Frame") then
 		local donation
 		local donated
-		local texttemp = child.TextLabel.Text:split(" ")
+		local vip = false
 		local textemp = child.TextLabel.Text:split(" ")
 		for i,v in pairs(game.Players:GetPlayers()) do
 			if v.DisplayName == textemp[1] then
 				donation = v
+			elseif textemp[1] == "" and v.DisplayName == textemp[2] then
+				donation = v
+				vip = true
 			elseif v.DisplayName == textemp[#textemp] then
 				donated = v
 			end
 		end
 		if donation or donated then
 			task.wait(1)
-			Event2:Fire(donation,donated)
+			Event2:Fire(donation,donated,vip)
 		end
 	end
 end)
@@ -1130,13 +1137,22 @@ TextButton_2.MouseButton1Click:Connect(function()
 	jumpleft = 0
 end)
 
+function addComma(n)
+	local f,k = n,n
+	while (true) do
+		f,k = string.gsub(f,"^(-?%d+)(%d%d%d)","%1,%2")
+		if (k == 0) then break end
+	end
+	return f
+end
+
 local totalbabax = 0
 function Donated(a)
 	totalbabax += a
 	local connect2
 	local username = "Loading..."
 	--local a = donovalue.Value-old
-	connect2 = Event2.Event:Connect(function(donation,donated)
+	connect2 = Event2.Event:Connect(function(donation,donated,vip)
 		if donation == nil or donated == nil then
 			donation,donated = game.Players.LocalPlayer,game.Players.LocalPlayer
 		end
@@ -1152,11 +1168,16 @@ function Donated(a)
 				elseif a >= 1000000 then
 					color = Color3.new(0, 0, 1)
 				end
-				SendReport(donation, "Donated ".. moneytext .." **".. a .. "** to **".. donated.Name.."**",color)
+				SendReport(donation, "Donated ".. moneytext .." **".. addComma(a) .. "** to **".. donated.Name.."**",color)
 			end
 		end)
-		print(donation.Name.." Donated ".. a .." robux!")
+		print(donation.Name.." Donated ".. addComma(a) .." robux!")
 		username = donation.Name
+		if vip then
+			username = " "..donation.Name
+		else
+			username = donation.Name
+		end
 		connect2:Disconnect()
 	end)
 	delay(2.5, function()
@@ -1201,10 +1222,10 @@ function Donated(a)
 		local total = a*_G.One_Robux_Jump
 		local myjump = 0
 		local connect
-		clone.Text = [[Doing 0/]]..total..[[ Jumps
+		clone.Text = [[Doing ]]..addComma(myjump)..[[/]]..addComma(total)..[[ Jumps
 By @]]..username..[[
 
-Donated ]].. a
+Donated ]].. addComma(a)
 		spawn(function()
 			local script = Instance.new("LocalScript",clone.UIStroke)
 			while task.wait() do
@@ -1249,15 +1270,20 @@ Donated ]].. a
 						elseif a >= 1000000 then
 							color = Color3.new(0, 0, 1)
 						end
-						SendReport(donation, "Donated ".. moneytext .." **".. a .. "** to **".. donated.Name.."**",color)
+						SendReport(donation, "Donated ".. moneytext .." **".. addComma(a) .. "** to **".. donated.Name.."**",color)
 					end
 				end)
-				print(donation.Name.." Donated ".. a .." robux!")
+				print(donation.Name.." Donated ".. addComma(a) .." robux!")
 				username = donation.Name
-				clone.Text = [[Doing ]]..myjump..[[/]]..total..[[ Jumps
-	By @]]..username..[[
+				if vip then
+					username = " "..donation.Name
+				else
+					username = donation.Name
+				end
+				clone.Text = [[Doing ]]..addComma(myjump)..[[/]]..addComma(total)..[[ Jumps
+By @]]..username..[[
 
-	Donated ]].. a
+Donated ]].. addComma(a)
 				connect2:Disconnect()
 			end)
 		end
@@ -1271,10 +1297,10 @@ Donated ]].. a
 		end)
 		while task.wait() do
 			if doing == myid then
-				clone.Text = [[Doing ]]..myjump..[[/]]..total..[[ Jumps
+				clone.Text = [[Doing ]]..addComma(myjump)..[[/]]..addComma(total)..[[ Jumps
 By @]]..username..[[
 
-Donated ]].. a
+Donated ]].. addComma(a)
 				if (myjump >= total) or (jumpleft <= 0) then
 					table.remove(donations,mylistid)
 					local nextdonation
@@ -1324,7 +1350,7 @@ spawn(function()
 	local sec = 0
 	while task.wait(1) and _G.Play do
 		sec += 1
-		print("Time: ".. sec)
+		print(""..addComma(totalbabax).." per hour | next hour in ".. 3600-sec .."s")
 		if sec >= 3600 then
 			sec = 0
 			if totalbabax > 0 and _G.webhookurl ~= nil and CheckWebhook(_G.webhookurl) then
@@ -1348,7 +1374,7 @@ while game:GetService("RunService").Stepped:Wait() and _G.Play do
 	if jumpleft > 0 then
 		local succes,reason = pcall(function()
 			TextLabel.Text = [[Robux Jumps Pls Donate
-]].. jumpleft.. [[ Jump Left]]
+]].. addComma(jumpleft).. [[ Jump Left]]
 			Event:Fire()
 			humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 			local landed = false
