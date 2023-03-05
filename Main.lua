@@ -1,4 +1,4 @@
--- Objects To Lua Make By HairBaconGamming --
+-- Objects To Lua Make By HairBaconGamming -- 
 local Module_Scripts = {}
 local ScreenGui = Instance.new("ScreenGui")
 local ImageLabel = Instance.new("ImageLabel")
