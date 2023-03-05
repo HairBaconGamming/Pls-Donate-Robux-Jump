@@ -1,3 +1,9 @@
 # Pls-Donate-Robux-Jump
-Epic
-A good script for 1 robux = 100 Jumps!
+## About
+This script will make you jumps every robux raised
+## Updates
+Fixed premium donated
+Add test donate
+Fixed something idk
+## Creators
+All: HairBaconGamming
